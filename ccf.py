@@ -1,4 +1,10 @@
-
+# On implémente ci-dessous les algorithmes présentés dans le papier
+# Dans un premier temps, on écrit le code de l'algorithme sans optimisation (algo dit 'vanilla').
+# Par la suite, on s'intéresse aux manières d'optimiser cette première ébauche de CCF.
+# Par curiosité, on regardera deux façons de faire cela : 
+# - un algo naïf, inspiré de https://github.com/louis-monier/SparkProject/blob/master/ccf-project-pyspark.ipynb, qui 
+# semble au premier abord être une implémentation correcte de la version Secondary sort (mais qui en fait ne l'est pas!)
+# - un algo qui met en pratique réellement les optimisations proposées dans le papier
 
 
 def ccf_dedup(rdd):
@@ -89,7 +95,7 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
     return emit_1.union(emit_2)
 
 
-def run_ccf(sc, rdd, method="vanilla"):
+def ccf(sc, rdd, method="vanilla"):
 
     iteration = 1
 

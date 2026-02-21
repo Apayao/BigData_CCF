@@ -6,16 +6,14 @@ import os
 # Sauf qu'on ne peut pas les générer complètement au hasard, au risque de perdre l'interprétabilité
 # Si les graphes ne ressemblent pas aux données réelles (pas de liens, peu de sommets), l'évaluation en sera faussée
 
-def generate_small_world(num_nodes, num_edges, output_file_name=None):
+def generate_small_world(num_nodes, num_edges, output_dir="data"):
 
     # On utilise le modèle de Barabási-Albert
     m = max(1, num_edges // num_nodes)
 
     G = nx.barabasi_albert_graph(num_nodes, m)
 
-    if output_file_name is None:
-        output_file_name = f"SmallWorld_{num_nodes}_{num_edges}"
-
+    output_file_name = f"{output_dir}/SmallWorld_{num_nodes}_{num_edges}"
     output_path = f"{output_file_name}.txt"
 
     with open(output_path, 'w') as f:
@@ -34,10 +32,9 @@ def generate_small_world(num_nodes, num_edges, output_file_name=None):
 
 # Notre idée ici est donc d'évaluer l'algo avec un graphe au diamètre élevé
 
-def generate_line_graph(num_nodes, output_file_name=None):
+def generate_line_graph(num_nodes, output_dir='data'):
 
-    if output_file_name is None:
-        output_file_name = f"LineGraph_{num_nodes}"
+    output_file_name = f"{output_dir}/LineGraph_{num_nodes}"
 
     output_path = f"{output_file_name}.txt"
     with open(output_path, 'w') as f:
@@ -58,3 +55,7 @@ def load_graph_to_rdd(sc, file_path):
         return int(edge[0]), int(edge[1])
 
     return filtered_rdd.map(parse_line)
+
+
+if __name__ == '__main__':
+    print("Generating graphs")
