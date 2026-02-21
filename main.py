@@ -3,7 +3,7 @@ from pyspark import SparkConf, SparkContext
 from benchmark import run_benchmark
 from graph_data import generate_small_world, generate_line_graph
 
-def main():
+def main(data_dir='data'):
     conf = SparkConf() \
         .setAppName("CCF") \
         .setMaster("local[*]") \
@@ -19,12 +19,12 @@ def main():
     generate_line_graph(1000)
     
     graph_files = [
-        {"name": "SmallWorld_100", "path": "SmallWorld_100_500.txt"},
-        {"name": "SmallWorld_10k", "path": "SmallWorld_10000_50000.txt"},
-        {"name": "SmallWorld_100k", "path": "SmallWorld_100000_500000.txt"},
-        {"name": "LineGraph_1000", "path": "LineGraph_1000.txt"},
-        {"name": "Web-Google", "path": "web-Google.txt"},
-        {"name": "Web-Google", "path": "web-BerkStan.txt"}
+        {"name": "SmallWorld_100", "path": f"{data_dir}/SmallWorld_100_500.txt"},
+        {"name": "SmallWorld_10k", "path": f"{data_dir}/SmallWorld_10000_50000.txt"},
+        {"name": "SmallWorld_100k", "path": f"{data_dir}/SmallWorld_100000_500000.txt"},
+        {"name": "LineGraph_1000", "path": f"{data_dir}/LineGraph_1000.txt"},
+        {"name": "Web-Google", "path": f"{data_dir}/web-Google.txt"},
+        {"name": "Web-Google", "path": f"{data_dir}/web-BerkStan.txt"}
     ]
 
     try:
