@@ -79,11 +79,12 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
     mins_filtered = mins.filter(lambda x: x[1] < x[0])
     emit_1 = mins_filtered
 
-    # ÉMISSION 2 : (v, min_val)
-    # On fait une jointure entre l'adjacence d'origine (key, v) et les minimums (key, min_val)
+
+    # On doit maintenant propager le minimum à tous les voisins
     # Résultat du join : (key, (v, min_val))
     joined = bothDirections.join(mins_filtered)
 
+    # Si le voisin est différent du minimum, on émet la nouvelle paire
     def process_joined(item):
         key, (v, min_val) = item
         if v != min_val:
