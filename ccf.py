@@ -81,7 +81,7 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
 
 
     # On doit maintenant propager le minimum à tous les voisins
-    # Résultat du join : (key, (v, min_val))
+    # La jointure se fait sur la clé, donc le résultat du join est (key, (v, min_val))
     joined = bothDirections.join(mins_filtered)
 
     # Si le voisin est différent du minimum, on émet la nouvelle paire
@@ -110,7 +110,7 @@ def ccf(sc, rdd, method="vanilla"):
         elif method == "optimised":
             iterated_rdd = ccf_iterate_optimised(rdd, new_pair_accum)
         else:
-            raise ValueError("Méthode inconnue. Choisissez: vanilla, sec_sort_naive, ou optimised")
+            raise ValueError("Unknown method. Please choose in [vanilla, sec_sort_naive, optimised]")
 
         rdd = ccf_dedup(iterated_rdd) # Rappel: il faudra comparer avec distinct
 
