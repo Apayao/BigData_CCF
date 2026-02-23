@@ -26,7 +26,10 @@ def ccf_iterate_vanilla(rdd, new_pair_accum):
 
     def process_vanilla(key_values):
         key, values = key_values
-        val_list = list(values)  # la conversion en list() force le chargement en RAM de toutes les valeurs
+
+        # Le groupByKey retourne un itérable PySpark : avec un tel type, on ne peut parcourir les données qu'une seule fois sans tout charger en mémoire
+        # dans l'algo vanilla, le reducer doit 1) trouver le minimum de la liste 2) émettre les paires (il y a donc 2 passes sur les données nécessaires : on doit charger les valeurs en RAM)
+        val_list = list(values)  # et justement, la conversion en list() force le chargement en RAM de toutes les valeurs
         min_val = min(val_list)
 
         emitted = []
@@ -53,6 +56,12 @@ def ccf_iterate_SecondSort_naive(rdd, new_pair_accum):
         # Finalement, on a une complexité spatiale O(n) en RAM + opération de tri lourde infligée au CPU
         sorted_vals = sorted(list(values))
         min_val = sorted_vals[0]
+
+        # En termes de perfs, le secondary sort naïf est finalement pire que le vanilla (en théorie) :
+        # Vanilla : recherche de minimum dans la liste O(n)
+        # SecondSort_naive : exécution d'un algo de tri O(N*logN)
+
+        # tri des données en RAM != secondary sort d'Hadoop (tri des données avant l'arrivée au reducer)
 
         emitted = []
         if min_val < key:
@@ -116,8 +125,13 @@ def ccf(sc, rdd, method="vanilla"):
 
         # Spark utilise la lazy evaluation: on doit forcer l'exécution avec un count()
         # pour que l'accumulateur se mette à jour avant la condition d'arrêt.
-        rdd.cache()  # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante
-        rdd.count()
+        rdd.cache()  # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante : Spark ne garde pas en mémoire les résultats intermédiaires par défaut
+        # Au lieu de recommencer la lecture de fichier à chaque itération, on met le rdd en RAM pour le ré-utiliser.
+
+        # Lazy evaluation : Spark gère 2 types d'opération :
+        # - les transformations : n'appellent aucun calcul, Spark se contente de dresser le plan d'exécution (sous forme d'un DAG)
+        # - les actions : déclencheurs du calcul sur le processeur
+        rdd.count() # dans notre code, l'accumulateur est modifié pendant une transformation (en l'occurrence, flatmap), il faut donc appeler une action pour que le flatmap soit exécuté.
 
         new_pairs = new_pair_accum.value
         print(f"[{method}] Iteration {iteration}: {new_pairs} new pairs.")
@@ -126,5 +140,6 @@ def ccf(sc, rdd, method="vanilla"):
             break
 
         iteration += 1
+
 
     return rdd, iteration
