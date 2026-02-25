@@ -77,7 +77,7 @@ def ccf_iterate_SecondSort_naive(rdd, new_pair_accum):
 
 def ccf_iterate_optimised(rdd, new_pair_accum):
 
-    num_parts = max(rdd.getNumPartitions(), 64)
+    num_parts = rdd.getNumPartitions()
     bothDirections = rdd.flatMap(lambda x: [(x[0], x[1]), (x[1], x[0])]) \
                         .partitionBy(num_parts) \
                         .persist()
@@ -108,7 +108,7 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
 
     emit_2 = joined.flatMap(process_joined)
 
-    result = emit_1.union(emit_2).coalesce(num_parts)
+    result = emit_1.union(emit_2)
 
     return result, bothDirections
 
@@ -136,7 +136,7 @@ def ccf(sc, rdd, method="vanilla"):
         # pour que l'accumulateur se mette à jour avant la condition d'arrêt.
         # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante : Spark ne garde pas en mémoire les résultats intermédiaires par défaut
         # Au lieu de recommencer la lecture de fichier à chaque itération, on met le rdd en RAM pour le ré-utiliser.
-
+        rdd.cache()
         rdd.localCheckpoint() 
         
         count_elements = rdd.count()
@@ -158,3 +158,4 @@ def ccf(sc, rdd, method="vanilla"):
 
 
     return rdd, iteration
+
