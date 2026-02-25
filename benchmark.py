@@ -46,7 +46,7 @@ def run_benchmark(sc, graph_files):
     results = []
     log_filename = "lastRunLogs.txt"
     
-    # On initialise le fichier de logs (mode "w" pour écraser les anciennes exécutions)
+    # On initialise le fichier de logs (les anciennes exécutions sont écrasées)
     with open(log_filename, "w") as log_file:
         log_file.write(f"--- Benchmark CCF démarré le {time.strftime('%Y-%m-%d %H:%M:%S')} ---\n\n")
     
@@ -62,7 +62,7 @@ def run_benchmark(sc, graph_files):
             res = run_experiment(sc, rdd, method, graph['name'])
             results.append(res)
             
-            # Écriture immédiate dans le fichier log après chaque itération (mode "a" pour append)
+            # Écriture immédiate dans le fichier log après chaque itération
             with open(log_filename, "a") as log_file:
                 if res["Status"] == "Success":
                     log_file.write(f"[{graph['name']}] Method: {method.ljust(15)} | Status: Success | Time: {res['Time (s)']:<6}s | Iterations: {res['Iterations']:<3} | Components: {res['Components']}\n")
@@ -71,9 +71,7 @@ def run_benchmark(sc, graph_files):
             
         rdd.unpersist() 
 
-    # On conserve la sortie CSV à la fin pour avoir les données propres si besoin
     df_results = pd.DataFrame(results)
-    print("\n--- Bilan final ---")
     print(df_results.to_string(index=False))
     
     df_results.to_csv("benchmark_results.csv", index=False)
