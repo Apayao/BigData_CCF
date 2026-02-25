@@ -114,7 +114,7 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
 
 
 
-def ccf(sc, rdd, method="vanilla"):
+def ccf(sc, rdd, method="vanilla", customDedup=True):
 
     iteration = 1
 
@@ -130,7 +130,7 @@ def ccf(sc, rdd, method="vanilla"):
         else:
             raise ValueError("Unknown method. Please choose in [vanilla, sec_sort_naive, optimised]")
 
-        rdd = ccf_dedup(iterated_rdd) # Rappel: il faudra comparer avec distinct
+        rdd = ccf_dedup(iterated_rdd) if not customDedup else iterated_rdd.distinct()
 
         # Spark utilise la lazy evaluation: on doit forcer l'exécution avec un count()
         # pour que l'accumulateur se mette à jour avant la condition d'arrêt.
@@ -158,4 +158,5 @@ def ccf(sc, rdd, method="vanilla"):
 
 
     return rdd, iteration
+
 
