@@ -1,11 +1,11 @@
 import time
 import pandas as pd
+import os
 
 from ccf import ccf
 from graph_data import load_graph_to_rdd
 
 def run_experiment(sc, rdd, method_name, graph_name):
-
     print(f"\nRunning experiment : {graph_name} | Method : {method_name}")
     
     start_time = time.time()
@@ -17,7 +17,7 @@ def run_experiment(sc, rdd, method_name, graph_name):
         end_time = time.time()
         execution_time = round(end_time - start_time, 2)
         
-        print(f"{num_components} CC // Execution time: {execution_time}s // Iterations: {num_iterations}")
+        print(f"{num_components} CC // Execution time: {execution_time}s // Iterations: {num_iterations}", flush=True)
         
         return {
             "Graph": graph_name,
@@ -30,7 +30,7 @@ def run_experiment(sc, rdd, method_name, graph_name):
 
     except Exception as e:
         end_time = time.time()
-        print(f"Method {method_name} failed with {graph_name}. Error : {str(e)}")
+        print(f"Method {method_name} failed with {graph_name}. Error: {str(e)}")
         
         return {
             "Graph": graph_name,
@@ -42,9 +42,13 @@ def run_experiment(sc, rdd, method_name, graph_name):
         }
 
 def run_benchmark(sc, graph_files):
-
     methods_to_test = ["vanilla", "sec_sort_naive", "optimised"]
     results = []
+    log_filename = "lastRunLogs.txt"
+    
+    # On initialise le fichier de logs (mode "w" pour écraser les anciennes exécutions)
+    with open(log_filename, "w") as log_file:
+        log_file.write(f"--- Benchmark CCF démarré le {time.strftime('%Y-%m-%d %H:%M:%S')} ---\n\n")
     
     for graph in graph_files:
         print(f"Processing graph: {graph['name']}")
@@ -58,9 +62,18 @@ def run_benchmark(sc, graph_files):
             res = run_experiment(sc, rdd, method, graph['name'])
             results.append(res)
             
+            # Écriture immédiate dans le fichier log après chaque itération (mode "a" pour append)
+            with open(log_filename, "a") as log_file:
+                if res["Status"] == "Success":
+                    log_file.write(f"[{graph['name']}] Method: {method.ljust(15)} | Status: Success | Time: {res['Time (s)']:<6}s | Iterations: {res['Iterations']:<3} | Components: {res['Components']}\n")
+                else:
+                    log_file.write(f"[{graph['name']}] Method: {method.ljust(15)} | Status: Failed  | Time: {res['Time (s)']:<6}s\n")
+            
         rdd.unpersist() 
 
+    # On conserve la sortie CSV à la fin pour avoir les données propres si besoin
     df_results = pd.DataFrame(results)
+    print("\n--- Bilan final ---")
     print(df_results.to_string(index=False))
     
     df_results.to_csv("benchmark_results.csv", index=False)

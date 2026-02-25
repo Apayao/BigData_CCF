@@ -1,0 +1,5 @@
+--- Benchmark CCF démarré le 2026-02-25 01:10:09 ---
+
+[SmallWorld_1000] Method: vanilla         | Status: Success | Time: 15.95 s | Iterations: 4   | Components: 1
+[SmallWorld_1000] Method: sec_sort_naive  | Status: Success | Time: 15.77 s | Iterations: 4   | Components: 1
+[SmallWorld_1000] Method: optimised       | Status: Failed  | Time: 13.3  s

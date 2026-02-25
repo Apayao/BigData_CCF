@@ -41,7 +41,7 @@ def ccf_iterate_vanilla(rdd, new_pair_accum):
                     emitted.append((v, min_val))
         return emitted
 
-    return bothDirections.groupByKey().flatMap(process_vanilla)
+    return bothDirections.groupByKey().flatMap(process_vanilla), None
 
 
 def ccf_iterate_SecondSort_naive(rdd, new_pair_accum):
@@ -72,13 +72,18 @@ def ccf_iterate_SecondSort_naive(rdd, new_pair_accum):
                     emitted.append((v, min_val))
         return emitted
 
-    return adj.groupByKey().flatMap(process_ss_naive)
+    return adj.groupByKey().flatMap(process_ss_naive), None
 
 
 def ccf_iterate_optimised(rdd, new_pair_accum):
 
-    bothDirections = rdd.flatMap(lambda x: [(x[0], x[1]), (x[1], x[0])])
-    mins = bothDirections.reduceByKey(lambda v1, v2: v1 if v1 < v2 else v2) #on calcule les minima locaux à chaque fois, sans surcharger la RAM
+    num_parts = max(rdd.getNumPartitions(), 64)
+    bothDirections = rdd.flatMap(lambda x: [(x[0], x[1]), (x[1], x[0])]) \
+                        .partitionBy(num_parts) \
+                        .persist()
+
+    
+    mins = bothDirections.reduceByKey(min, numPartitions=num_parts) #on calcule les minima locaux à chaque fois, sans surcharger la RAM
     # on préfère utiliser reduceByKey ici (pour la raison énoncée juste avant), plutôt que groupByKey.
     # En effet, groupByKey shuffle toutes les données pour que les mêmes valeurs associées à une même clé se retrouvent sur une même partition.
     # Or, ici, on n'a pas besoin de garder la liste d'adjacence complète pour chaque sommet, uniquement le sommet de valeur minimale
@@ -91,7 +96,7 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
 
     # On doit maintenant propager le minimum à tous les voisins
     # La jointure se fait sur la clé, donc le résultat du join est (key, (v, min_val))
-    joined = bothDirections.join(mins_filtered)
+    joined = bothDirections.join(mins_filtered, numPartitions=num_parts)
 
     # Si le voisin est différent du minimum, on émet la nouvelle paire
     def process_joined(item):
@@ -102,7 +107,11 @@ def ccf_iterate_optimised(rdd, new_pair_accum):
         return []
 
     emit_2 = joined.flatMap(process_joined)
-    return emit_1.union(emit_2)
+
+    result = emit_1.union(emit_2).coalesce(num_parts)
+
+    return result, bothDirections
+
 
 
 def ccf(sc, rdd, method="vanilla"):
@@ -113,11 +122,11 @@ def ccf(sc, rdd, method="vanilla"):
         new_pair_accum = sc.accumulator(0)
 
         if method == "vanilla":
-            iterated_rdd = ccf_iterate_vanilla(rdd, new_pair_accum)
+            iterated_rdd, cached_rdd = ccf_iterate_vanilla(rdd, new_pair_accum)
         elif method == "sec_sort_naive":
-            iterated_rdd = ccf_iterate_SecondSort_naive(rdd, new_pair_accum)
+            iterated_rdd, cached_rdd = ccf_iterate_SecondSort_naive(rdd, new_pair_accum)
         elif method == "optimised":
-            iterated_rdd = ccf_iterate_optimised(rdd, new_pair_accum)
+            iterated_rdd, cached_rdd = ccf_iterate_optimised(rdd, new_pair_accum)
         else:
             raise ValueError("Unknown method. Please choose in [vanilla, sec_sort_naive, optimised]")
 
@@ -125,13 +134,19 @@ def ccf(sc, rdd, method="vanilla"):
 
         # Spark utilise la lazy evaluation: on doit forcer l'exécution avec un count()
         # pour que l'accumulateur se mette à jour avant la condition d'arrêt.
-        rdd.cache()  # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante : Spark ne garde pas en mémoire les résultats intermédiaires par défaut
+        # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante : Spark ne garde pas en mémoire les résultats intermédiaires par défaut
         # Au lieu de recommencer la lecture de fichier à chaque itération, on met le rdd en RAM pour le ré-utiliser.
 
+        rdd.localCheckpoint() 
+        
+        count_elements = rdd.count()
         # Lazy evaluation : Spark gère 2 types d'opération :
         # - les transformations : n'appellent aucun calcul, Spark se contente de dresser le plan d'exécution (sous forme d'un DAG)
         # - les actions : déclencheurs du calcul sur le processeur
-        rdd.count() # dans notre code, l'accumulateur est modifié pendant une transformation (en l'occurrence, flatmap), il faut donc appeler une action pour que le flatmap soit exécuté.
+        # dans notre code, l'accumulateur est modifié pendant une transformation (en l'occurrence, flatmap), il faut donc appeler une action pour que le flatmap soit exécuté.
+
+        if cached_rdd is not None:
+            cached_rdd.unpersist()
 
         new_pairs = new_pair_accum.value
         print(f"[{method}] Iteration {iteration}: {new_pairs} new pairs.")
