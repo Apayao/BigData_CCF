@@ -1,0 +1,25 @@
+Graph,Method,Status,Time (s),Iterations,Components
+SmallWorld_1000,vanilla,Success,2.5,4,1
+SmallWorld_1000,sec_sort_naive,Success,2.3,4,1
+SmallWorld_1000,optimised,Success,2.29,4,1
+SmallWorld_10k,vanilla,Success,2.88,4,1
+SmallWorld_10k,sec_sort_naive,Success,2.9,4,1
+SmallWorld_10k,optimised,Success,3.03,4,1
+SmallWorld_100k,vanilla,Success,13.02,5,1
+SmallWorld_100k,sec_sort_naive,Success,12.98,5,1
+SmallWorld_100k,optimised,Success,16.63,5,1
+LineGraph_1000,vanilla,Success,9.34,12,1
+LineGraph_1000,sec_sort_naive,Success,9.45,12,1
+LineGraph_1000,optimised,Success,11.45,12,1
+Web-Google,vanilla,Success,117.55,8,2746
+Web-Google,sec_sort_naive,Success,118.73,8,2746
+Web-Google,optimised,Success,187.93,8,2746
+Web-Berkstan,vanilla,Success,83.77,13,676
+Web-Berkstan,sec_sort_naive,Success,81.73,13,676
+Web-Berkstan,optimised,Success,125.16,13,676
+LiveJournal,vanilla,Success,1850.47,7,914
+LiveJournal,sec_sort_naive,Success,1574.91,7,914
+LiveJournal,optimised,Success,1404.87,7,914
+Orkut,vanilla,Success,4146.74,5,1
+Orkut,sec_sort_naive,Success,3759.21,5,1
+Orkut,optimised,Success,3749.99,5,1

@@ -1,8 +1,26 @@
---- Benchmark CCF démarré le 2026-02-28 12:03:35 ---
+--- Benchmark CCF dÃ©marrÃ© le 2026-02-28 18:25:47 ---
 
-[SmallWorld_1000] Method: vanilla         | Status: Success | Time: 15.98 s | Iterations: 4   | Components: 1
-[SmallWorld_1000] Method: sec_sort_naive  | Status: Success | Time: 15.58 s | Iterations: 4   | Components: 1
-[SmallWorld_1000] Method: optimised       | Status: Success | Time: 15.52 s | Iterations: 4   | Components: 1
-[Web-Google] Method: vanilla         | Status: Success | Time: 83.54 s | Iterations: 8   | Components: 2746
-[Web-Google] Method: sec_sort_naive  | Status: Success | Time: 84.04 s | Iterations: 8   | Components: 2746
-[Web-Google] Method: optimised       | Status: Failed  | Time: 8.25  s
+[SmallWorld_1000] Method: vanilla         | Status: Success | Time: 2.5   s | Iterations: 4   | Components: 1
+[SmallWorld_1000] Method: sec_sort_naive  | Status: Success | Time: 2.3   s | Iterations: 4   | Components: 1
+[SmallWorld_1000] Method: optimised       | Status: Success | Time: 2.29  s | Iterations: 4   | Components: 1
+[SmallWorld_10k] Method: vanilla         | Status: Success | Time: 2.88  s | Iterations: 4   | Components: 1
+[SmallWorld_10k] Method: sec_sort_naive  | Status: Success | Time: 2.9   s | Iterations: 4   | Components: 1
+[SmallWorld_10k] Method: optimised       | Status: Success | Time: 3.03  s | Iterations: 4   | Components: 1
+[SmallWorld_100k] Method: vanilla         | Status: Success | Time: 13.02 s | Iterations: 5   | Components: 1
+[SmallWorld_100k] Method: sec_sort_naive  | Status: Success | Time: 12.98 s | Iterations: 5   | Components: 1
+[SmallWorld_100k] Method: optimised       | Status: Success | Time: 16.63 s | Iterations: 5   | Components: 1
+[LineGraph_1000] Method: vanilla         | Status: Success | Time: 9.34  s | Iterations: 12  | Components: 1
+[LineGraph_1000] Method: sec_sort_naive  | Status: Success | Time: 9.45  s | Iterations: 12  | Components: 1
+[LineGraph_1000] Method: optimised       | Status: Success | Time: 11.45 s | Iterations: 12  | Components: 1
+[Web-Google] Method: vanilla         | Status: Success | Time: 117.55s | Iterations: 8   | Components: 2746
+[Web-Google] Method: sec_sort_naive  | Status: Success | Time: 118.73s | Iterations: 8   | Components: 2746
+[Web-Google] Method: optimised       | Status: Success | Time: 187.93s | Iterations: 8   | Components: 2746
+[Web-Berkstan] Method: vanilla         | Status: Success | Time: 83.77 s | Iterations: 13  | Components: 676
+[Web-Berkstan] Method: sec_sort_naive  | Status: Success | Time: 81.73 s | Iterations: 13  | Components: 676
+[Web-Berkstan] Method: optimised       | Status: Success | Time: 125.16s | Iterations: 13  | Components: 676
+[LiveJournal] Method: vanilla         | Status: Success | Time: 1850.47s | Iterations: 7   | Components: 914
+[LiveJournal] Method: sec_sort_naive  | Status: Success | Time: 1574.91s | Iterations: 7   | Components: 914
+[LiveJournal] Method: optimised       | Status: Success | Time: 1404.87s | Iterations: 7   | Components: 914
+[Orkut] Method: vanilla         | Status: Success | Time: 4146.74s | Iterations: 5   | Components: 1
+[Orkut] Method: sec_sort_naive  | Status: Success | Time: 3759.21s | Iterations: 5   | Components: 1
+[Orkut] Method: optimised       | Status: Success | Time: 3749.99s | Iterations: 5   | Components: 1
