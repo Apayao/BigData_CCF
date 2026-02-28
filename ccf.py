@@ -5,7 +5,7 @@
 # - un algo naïf, inspiré de https://github.com/louis-monier/SparkProject/blob/master/ccf-project-pyspark.ipynb, qui 
 # semble au premier abord être une implémentation correcte de la version Secondary sort (mais qui en fait ne l'est pas!)
 # - un algo qui met en pratique réellement les optimisations proposées dans le papier
-
+from ccf_secondary_sort import ccf_iterate_secondary_sort
 
 def ccf_dedup(rdd):
     mapped_rdd = rdd.map(lambda edge: (edge, None))
@@ -126,17 +126,16 @@ def ccf(sc, rdd, method="vanilla", customDedup=True):
         elif method == "sec_sort_naive":
             iterated_rdd, cached_rdd = ccf_iterate_SecondSort_naive(rdd, new_pair_accum)
         elif method == "optimised":
-            iterated_rdd, cached_rdd = ccf_iterate_optimised(rdd, new_pair_accum)
+            iterated_rdd, cached_rdd = ccf_iterate_secondary_sort(rdd, new_pair_accum)
         else:
             raise ValueError("Unknown method. Please choose in [vanilla, sec_sort_naive, optimised]")
 
-        rdd = ccf_dedup(iterated_rdd) if not customDedup else iterated_rdd.distinct()
+        rdd = ccf_dedup(iterated_rdd) if customDedup else iterated_rdd.distinct()
 
         # Spark utilise la lazy evaluation: on doit forcer l'exécution avec un count()
         # pour que l'accumulateur se mette à jour avant la condition d'arrêt.
         # Mise en cache pour ne pas recalculer l'arbre à l'itération suivante : Spark ne garde pas en mémoire les résultats intermédiaires par défaut
         # Au lieu de recommencer la lecture de fichier à chaque itération, on met le rdd en RAM pour le ré-utiliser.
-        rdd.cache()
         rdd.localCheckpoint() 
         
         count_elements = rdd.count()

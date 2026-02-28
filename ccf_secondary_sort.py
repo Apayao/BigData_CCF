@@ -26,7 +26,7 @@ def ccf_iterate_secondary_sort(rdd_edges, new_pair_accum):
   # ---------------------------------------------------------------------
   # Note : on met ((u,v), None) pour forcer Spark à trier sur la clé (u,v), par la suite.
   # (clé composite = (u,v)). Le None ne sert à rien, c'est juste un placeholder.
-
+  
   bothDirections = rdd_edges.flatMap(lambda e : [((e[0],e[1]),None),((e[1],e[0]),None)])
 
   # ---------------------------------------------------------------------
@@ -40,7 +40,7 @@ def ccf_iterate_secondary_sort(rdd_edges, new_pair_accum):
   #
   #    -> partitionFunc = hash(u) seulement. On change alors le hash function.
   # ---------------------------------------------------------------------
-
+  
   def part_by_u(key):
     """
     key = (u, v)
@@ -75,7 +75,7 @@ def ccf_iterate_secondary_sort(rdd_edges, new_pair_accum):
   def ccf_iterate_reduce_for_secondary_sort(it):
     # Flux trié : (u1,v1),(u1,v2),(u1,v3),(u2,w1),...
       """
-      Cette fonction réalise la phase "reduce" d’une itération CCF
+      Cette fonction réalise la phase "reduce" d'une itération CCF
       en version secondary sort.
 
       IMPORTANT :
@@ -115,7 +115,6 @@ def ccf_iterate_secondary_sort(rdd_edges, new_pair_accum):
               flag_can_ignore = True
             else:
               flag_can_ignore = False
-              flag_new_pair = True
               yield (cur_u, min_v)
 
           else:
@@ -123,21 +122,13 @@ def ccf_iterate_secondary_sort(rdd_edges, new_pair_accum):
               continue
             elif v != min_v:
               yield (v, min_v)
-              flag_new_pair = True
-
-
-
-      # Si cette partition a émis au moins une paire, on incrémente le compteur global.
-      # On evite d'accumuler inutilement pour rien à chaque pair émise.
-      # Peut probablement generer pour les gros graphe un depassement de la capacité d'un int.
-      if flag_new_pair:
-        new_pair_accum.add(1)
+              new_pair_accum.add(1)
 
 
   # mapPartitions permet de traiter toute une partition d’un coup.
   # On en a besoin car les (u,v) arrivent triés par u,
   # et on doit parcourir le flux pour détecter les changements de u.
   # Avec map(), on traiterait un seul élément à la fois.
-  return sorted_pairs.mapPartitions(ccf_iterate_reduce_for_secondary_sort)
+  return sorted_pairs.mapPartitions(ccf_iterate_reduce_for_secondary_sort), None
 
 
