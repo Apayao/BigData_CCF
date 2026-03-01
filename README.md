@@ -3,7 +3,7 @@
 ## About the Project
 This repository provides a PySpark implementation of the algorithms detailed in the paper *"CCF: Fast and Scalable Connected Component Computation in MapReduce"* (Kardes et al.). 
 
-The goal of this project is to efficiently compute connected components in massive graphs using the Min-ID propagation strategy. We explore and compare multiple implementations—from a naive MapReduce translation to highly optimized Spark-native versions that mimic Hadoop's Secondary Sorting (using `repartitionAndSortWithinPartitions`). The project evaluates these approaches on both synthetic topologies and real-world datasets to analyze their limits regarding memory consumption (RAM) and network serialization (Shuffles).
+The goal of this project is to efficiently compute connected components in massive graphs using the Min-ID propagation strategy. We explore and compare multiple implementations—from a naive MapReduce translation to highly optimised Spark-native versions that copy Hadoop's Secondary Sorting (using `repartitionAndSortWithinPartitions`). The project evaluates these approaches on both synthetic topologies and real-world datasets to analyse their limits regarding (RAM) and network serialisation (shuffles).
 
 ## How to run our code
 
